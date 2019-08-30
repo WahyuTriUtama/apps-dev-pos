@@ -8,7 +8,7 @@ class Item extends MY_Controller
 		parent::__construct();
 		
 		$this->_page = "Barang";
-		$this->load->model(['Item_model' => 'model', 'Item_category_model', 'Uom_model']);
+		$this->load->model(['Item_model' => 'model', 'Item_category_model', 'Uom_model', 'Inventory_model']);
 		$this->breadcrumbs->push("Dashboard", $this->cls_path.'/home');
 		$this->breadcrumbs->push("Master", $this->controller_id);
 		$this->breadcrumbs->push($this->_page, $this->controller_id.'#');

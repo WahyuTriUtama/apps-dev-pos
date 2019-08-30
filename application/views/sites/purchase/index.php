@@ -14,7 +14,7 @@
 		      <th width="10%">#</th>
 		      <th>Kode</th>
 		      <th>Tanggal</th>
-		      <th>Vendor</th>
+		      <th>Suplier</th>
 		      <th>Status</th>
 		      <th>Total Amount</th>
 		    </tr>
@@ -26,8 +26,13 @@
 		  		<tr>
 		  			<td><?= ++$no; ?></td>
 		  			<td class="text-center">
+		  				<?php if ($row->status == 'open'): ?>
 		  				<a href='<?= base_url().$controller_id;?>/update/<?= $row->id; ?>' title='Edit' class='btn btn-flat btn-warning btn-xs'><i class='fa fa-edit'></i></a>
                     	<a href='<?= base_url().$controller_id;?>/delete/<?= $row->id; ?>' onclick='return confirm("Are you sure ?")' class='btn btn-flat btn-danger btn-xs' title='Delete'><i class='fa fa-trash-o'></i></a>
+		  				<?php else: ?>
+		  					<a href='<?= base_url().$controller_id;?>/update/<?= $row->id; ?>' title='View' class='btn btn-flat btn-info btn-xs'><i class='fa fa-eye'></i></a>
+		  				<?php endif ?>
+		  				
 		  			</td>
 		  			<td><?= $row->code; ?></td>
 		  			<td><?= $row->document_date; ?></td>

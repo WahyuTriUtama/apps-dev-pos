@@ -1,64 +1,86 @@
+<?php $group = $this->session->userdata('group');?>
 <!-- Small boxes (Stat box) -->
   <div class="row">
+  	<?php if ($group == 'admin' || $group == 'purchase') { ?>
     <div class="col-lg-3 col-xs-6">
       <!-- small box -->
       <div class="small-box bg-aqua">
         <div class="inner">
-          <h3>0</h3>
+          <h3><?= $model['purchase']; ?></h3>
 
-          <p>Pembelian</p>
+          <p>Pembelian Open</p>
         </div>
         <div class="icon">
           <i class="ion ion-bag"></i>
         </div>
-        <a href="#" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="<?= base_url($cls_path);?>/purchase" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <!-- ./col -->
+    <?php } ?>
+	<?php if ($group == 'admin' || $group == 'sales') { ?>
     <div class="col-lg-3 col-xs-6">
       <!-- small box -->
       <div class="small-box bg-green">
         <div class="inner">
-          <h3>0</h3>
+          <h3><?= $model['sales']; ?></h3>
 
-          <p>Penjualan</p>
+          <p>Penjualan Hari Ini</p>
         </div>
         <div class="icon">
           <i class="ion ion-ios-cart-outline"></i>
         </div>
-        <a href="#" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="<?= base_url($cls_path);?>/sales_history" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <!-- ./col -->
+    <?php } ?>
+    <?php if ($group == 'admin') { ?>
     <div class="col-lg-3 col-xs-6">
       <!-- small box -->
       <div class="small-box bg-blue">
         <div class="inner">
-          <h3>0</h3>
+          <h3><?= $model['items']; ?></h3>
 
           <p>Barang</p>
         </div>
         <div class="icon">
           <i class="ion ion-ios-pricetags-outline"></i>
         </div>
-        <a href="#" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="<?= base_url($cls_path);?>/item" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <!-- ./col -->
+    <?php } ?>
+    <?php if ($group == 'inventory') { ?>
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-blue">
+        <div class="inner">
+          <h3><?= $model['items']; ?></h3>
+
+          <p>Barang</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-ios-pricetags-outline"></i>
+        </div>
+        <a href="<?= base_url($cls_path);?>/report/inventory" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <?php } ?>
+    <?php if ($group == 'admin') { ?>
     <div class="col-lg-3 col-xs-6">
       <!-- small box -->
       <div class="small-box bg-yellow">
         <div class="inner">
-          <h3>0</h3>
+          <h3><?= $model['customer']; ?></h3>
 
           <p>Pelanggan</p>
         </div>
         <div class="icon">
           <i class="ion ion-ios-people-outline"></i>
         </div>
-        <a href="#" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="<?= base_url($cls_path);?>/customer" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
+    <?php } ?>
     <!-- ./col -->
   </div>
  <!--  

@@ -100,11 +100,13 @@ class User extends MY_Controller
 
 	private function _rules($model, $request)
 	{
+		//print_r($request);exit;
 		$this->form_validation->set_rules('name', ' ', 'trim|required');
 		$this->form_validation->set_rules('group', ' ', 'trim|required');
 		if (isset($model->id) && $model->id) {
 			$this->form_validation->set_rules('username', ' ', 'trim|required');
 			if (isset($request['password']) && $request['password'] != '') {
+				$this->form_validation->set_rules('password', ' ', 'required');
 				$this->form_validation->set_rules('cpassword', ' ', 'matches[password]');
 			} 
 		} else {

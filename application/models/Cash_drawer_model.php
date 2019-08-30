@@ -8,6 +8,7 @@ class Cash_drawer_model extends CI_Model
 	{
 		return $this->db->select("{$this->table}.*, user.username, user.name")
 						->join('user', 'user_id=user.id', 'left')
+						->order_by('id', 'desc')
 						->get($this->table);
 	}
 

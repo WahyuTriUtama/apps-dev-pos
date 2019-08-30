@@ -12,6 +12,7 @@
 		      <th>Kode</th>
 		      <th>Tanggal</th>
 		      <th>Pelanggan</th>
+		      <th>Kasir</th>
 		      <th>Status</th>
 		      <th>Total Amount</th>
 		    </tr>
@@ -23,12 +24,14 @@
 		  		<tr>
 		  			<td><?= ++$no; ?></td>
 		  			<td class="text-center">
-		  				<!-- <a href='<?= base_url().$controller_id;?>/update/<?= $row->id; ?>' title='Edit' class='btn btn-flat btn-warning btn-xs'><i class='fa fa-edit'></i></a> -->
-                    	<a href='<?= base_url().$controller_id;?>/delete/<?= $row->id; ?>' onclick='return confirm("Are you sure ?")' class='btn btn-flat btn-danger btn-xs' title='Delete'><i class='fa fa-trash-o'></i></a>
+		  				<a href='<?= base_url().$controller_id;?>/view/<?= $row->id; ?>' title='View' class='btn btn-flat btn-info btn-xs'><i class='fa fa-eye'></i></a>
+		  				&nbsp;
+		  				<button type="button" onclick="print(<?= $row->id; ?>)" class="btn btn-flat btn-xs btn-default"><i class="fa fa-print"></i></button>
 		  			</td>
 		  			<td><?= $row->code; ?></td>
 		  			<td><?= $row->document_date; ?></td>
 		  			<td><a href="<?= base_url();?>sites/customer/update/<?= $row->customer_id; ?>" target="_blank"><?= $row->customer_name ?></a></td>
+		  			<td><?= $this->User_model->find_where(['id' => $row->user_id])->row()->name; ?></td>
 		  			<td><?= ucfirst($row->status); ?></td>
 		  			<td class="text-right"><?= format_currency($row->total_amount); ?></td>
 		  		</tr>
@@ -54,4 +57,11 @@
 			'iDisplayLength': <?= $page_limit;?>
 	    });
 	});
+
+	function print(id) {
+        var urlNew = "<?= base_url($cls_path)?>/sales/print/"+ id;
+        var win = window.open(urlNew, '_blank');
+        win.focus();
+        win.print();
+    }
 </script>

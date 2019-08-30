@@ -1,5 +1,5 @@
 <?php
-	$vendor = array('' => '-- Vendor --');
+	$vendor = array('' => '-- Suplier --');
 	$vendorModel = $this->Vendor_model->find_where(['is_active' => 1]);
 	foreach ($vendorModel->result() as $row) {
 		$vendor[$row->id] = $row->code;
@@ -37,12 +37,12 @@
 
 			  	<div class="col-md-4">
 			  		<div class="form-group">
-	                 	<label for="">Vendor</label>
+	                 	<label for="">Suplier</label>
 	                 	<?= form_dropdown('vendor_id', $vendor, isset($model->vendor_id) && $model->vendor_id ? $model->vendor_id: '', ['class' => 'form-control select2', 'id' => 'vendor']); ?>
 	        			<?= form_error('vendor_id');?>
 	                </div>
 	                <div class="form-group">
-	                  <label for="">Nama Vendor</label>
+	                  <label for="">Nama Suplier</label>
 	                  <input type="text" value="<?= set_value('vendor_name', isset($model->vendor_name) && $model->vendor_name ? $model->vendor_name : '');?>" class="form-control" id="date" placeholder="" readonly="">
 	                </div>
 			  	</div>
@@ -77,15 +77,40 @@
 								<th>Total Harga</th>
 						    </tr>
 						  </thead>
+						<?php if (isset($model->id) && $model->id) { ?>
+						  <tbody>
+						  	 <?php foreach ($detailModel->result() as $row) { ?>
+						  		<tr>
+						  			<td class="text-center">
+						  				<?php if ($model->status == 'open') { ?>
+						  					<a href='<?= base_url().$controller_id;?>/item_delete/<?= $row->id; ?>' onclick='return confirm("Are you sure ?")' class='btn btn-flat btn-danger btn-xs' title='Delete'><i class='fa fa-trash-o'></i></a>
+						  				<?php } ?>
+						  			</td>
+						  			<td><?= $row->item_code;?></td>
+						  			<td><?= $row->item_name;?></td>
+						  			<td><?= $row->qty;?></td>
+						  			<td><?= $row->price;?></td>
+						  			<td><?= $row->total_price;?></td>
+						  		</tr>
+						  	<?php } ?>
+						  </tbody>
 						  <tfoot>
 						  	<tr>
-						  		<td colspan="5">
-						  			<button type="button" id="add_item" class="btn btn-xs btn-success btn-flat">
-						  				<i class="fa fa-plus"></i> Tambah Barang
-						  			</button>
+						  		<td colspan="6">
+						  			<?php if ($model->status == 'open') { ?>
+							  			<button type="button" id="add_item" class="btn btn-sm btn-success btn-flat">
+							  				<i class="fa fa-plus"></i> Tambah Barang
+							  			</button>&nbsp;
+						  			<?php } ?>
+						  			<?php if ($model->total_amount > 0 && $model->status == 'open') { ?>
+							  			<button type="button" id="posting" class="btn btn-sm btn-primary btn-flat">
+							  				<i class="fa fa-save"></i> Post
+							  			</button>
+						  			<?php }?>
 						  		</td>
 						  	</tr>
 						  </tfoot>
+						<?php } ?>
 					</table>
 				</div>
 			</div>
@@ -111,22 +136,22 @@
 
         <div class="form-group">
           <label for="">Nama Barang</label>
-          <input type="text" value="<?= set_value('item_name', isset($model->item_name) && $model->item_name ? $model->item_name : '');?>" class="form-control" id="date" placeholder="">
+          <input type="text" value="" class="form-control" id="item_name" placeholder="" readonly="">
         </div>
 
         <div class="form-group">
           <label for="">Harga</label>
-          <input type="text" value="<?= set_value('price', isset($model->price) && $model->price ? $model->price : '');?>" class="form-control" id="date" placeholder="">
+          <input type="text" value="" class="form-control" id="item_price" placeholder="">
         </div>
 
         <div class="form-group">
           <label for="">Jumlah</label>
-          <input type="number" value="<?= set_value('qty', isset($model->qty) && $model->qty ? $model->qty : '');?>" class="form-control" id="date" placeholder="">
+          <input type="number" value="" class="form-control" id="item_qty" placeholder="">
         </div>
 
         <div class="form-group">
           <label for="">Total</label>
-          <input type="text" value="<?= set_value('total_price', isset($model->total_price) && $model->total_price ? format_currency($model->total_price) : '');?>" class="form-control" id="date" placeholder="Rp. 0.00" readonly="">
+          <input type="text" value="" class="form-control" id="item_amount" placeholder="Rp. 0.00" readonly="">
         </div>
 
       </div>
@@ -157,11 +182,119 @@
 	    });
 
 	    $('#vendor').change(function(e) {
-	    	$('.header_form').submit();
+	    	var st = "<?= isset($model->status) && $model->status ? $model->status : ''; ?>";
+
+	    	if (st != '' && st != 'open') {
+	    		alert('Tidak bisa diubah');
+	    		window.location.reload();
+	    	} else {
+	    		$('.header_form').submit();
+	    	}
 	    });
 
 	    $('#add_item').click(function(e) {
 	    	$('#modal_item').modal('show');
+	    	clear_form();
 	    });
+
+	    <?php if (isset($model->status) &&  $model->status != 'open') { ?>
+	    	$('#vendor').attr('disabled');
+	    <?php } ?>
+
+	    $('#item').change(function(e) {
+	    	var id = $(this).val();
+	    	var po_id = "<?= isset($model->id) && $model->id ? $model->id : '';?>";
+	    	$.ajax({
+	    		url: '<?= base_url($controller_id); ?>/item/'+ po_id,
+	    		type: 'POST',
+	    		dataType: 'json',
+	    		data: {id: id}
+	    	})
+	    	.done(function(data) {
+	    		if (data.status) {
+	    			$('#item_name').val(data.data.name);
+	    		} else {
+	    			alert(data.eror);
+	    		}
+	    	})
+	    	.fail(function() {
+	    		alert("error");
+	    	});
+	    });
+
+	    $('#item_qty, #item_price').keyup(function(e) {
+	    	var price = $('#item_price').val();
+	    	var qty = $('#item_qty').val();
+	    	var total_amount = 0.00;
+	    	price = price.replace(/,/g,'');
+	    	price = parseFloat(price);
+	    	qty = parseFloat(qty);
+	    	if (qty > 0 && price > 0) {
+	    		total_amount = qty * price; 
+	    	}
+	    	$('#item_amount').val(total_amount);
+	    });
+
+	    $('#save_item').click(function(e) {
+	    	var item_id = $('#item').val();
+	    	var price = $('#item_price').val();
+	    	var qty = $('#item_qty').val();
+	    	var total = $('#item_amount').val();
+	    	var po_id = "<?= isset($model->id) && $model->id ? $model->id : '';?>";
+	    	if (item_id == '' || price <= 0 || qty <= 0) {
+	    		alert('Semua field harus diisi. Harga & jumlah harus lebih besar 0.');
+	    	} else {
+	    		$.ajax({
+	    			url: '<?= base_url($controller_id);?>/add_detail/'+ po_id,
+	    			type: 'POST',
+	    			dataType: 'json',
+	    			data: {item_id: item_id, price: price, qty: qty, total: total},
+	    		})
+	    		.done(function(data) {
+	    			if (data.status) {
+	    				$('#modal_item').modal('hide');
+	    				clear_form();
+	    				window.location.reload();
+	    			} else {
+	    				alert('Terjadi kesalahan sistem, cek data dan klik simpan.');
+	    			}
+	    		})
+	    		.fail(function() {
+	    			alert("error");
+	    		});
+	    		
+	    	}
+	    });
+
+	    $('#posting').click(function(e) {
+	    	var po_id = "<?= isset($model->id) && $model->id ? $model->id : '';?>";
+	    	if (confirm('Apakah anda yakin akan posting?')) {
+	    		$.ajax({
+	    			url: '<?= base_url($controller_id);?>/posting/'+ po_id,
+	    			type: 'POST',
+	    			dataType: 'json',
+	    		})
+	    		.done(function(data) {
+	    			if (data.status) {
+	    				alert('Pembelian telah terposting.');
+	    				window.location.reload();
+	    			} else {
+	    				alert('Terjadi kesalahan sistem, cek data dan klik simpan.');
+	    			}
+	    		})
+	    		.fail(function() {
+	    			alert("error");
+	    		});
+	    		
+	    	}
+	    });
+	    /*end*/
 	});
+
+	function clear_form() {
+		$('#item').val('');
+		$('#item_price').val('');
+		$('#item_qty').val(0);
+		$('#item_amount').val(0);
+	}
 </script>

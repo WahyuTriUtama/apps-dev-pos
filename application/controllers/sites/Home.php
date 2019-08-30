@@ -8,15 +8,20 @@ class Home extends MY_Controller
 		parent::__construct();
 
 		$this->_page = "Dashboard";
-		$this->load->model('Dashboard_model');
+		$this->load->model(['Dashboard_model' => 'model']);
 		$this->breadcrumbs->push($this->_page, $this->controller_id.'#');
 	}
 
 	public function index()
 	{
-		//$this->load->view('sites/layout/main');
+		$data['purchase'] = $this->model->count_purchase();
+		$data['sales'] = $this->model->count_sales();
+		$data['customer'] = $this->model->count_customer();
+		$data['items'] = $this->model->count_items();
 
-		$this->show('index');
+		$this->show('index', [
+			'model' => $data
+		]);
 	}
 
 	public function logout()

@@ -7,7 +7,7 @@ class Vendor extends MY_Controller
 	{
 		parent::__construct();
 		
-		$this->_page = "Vendor";
+		$this->_page = "Suplier";
 		$this->load->model(['Vendor_model' => 'model']);
 		$this->breadcrumbs->push("Dashboard", $this->cls_path.'/home');
 		$this->breadcrumbs->push("Master", $this->controller_id);

@@ -10,7 +10,7 @@
 		      <th width="5%">No</th>
 		      <th>Tipe</th>
 		      <th>Tanggal</th>
-		      <th>User</th>
+		      <th>Kasir</th>
 		      <th>Total Penjualan</th>
 		      <th>Amount</th>
 		    </tr>

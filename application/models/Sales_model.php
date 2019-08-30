@@ -6,7 +6,8 @@ class Sales_model extends CI_Model
 
 	public function all()
 	{
-		return $this->db->get($this->table);
+		return $this->db->order_by('id', 'desc')
+						->get($this->table);
 	}
 
 	public function find_where($params)
@@ -33,5 +34,20 @@ class Sales_model extends CI_Model
 	public function delete($id='')
 	{
 		return $this->db->delete($this->table, array('id' => $id)); 
+	}
+
+	public function total_sales($drawer_id='')
+	{
+		return $this->db->select("IF(SUM(total_amount) > 0, SUM(total_amount), 0) as total_sales")
+						->where(['drawer_id' => $drawer_id])
+						->get($this->table);
+	}
+
+	public function total($params)
+	{
+		return $this->db->select("IF(SUM(total_amount) > 0, SUM(total_amount), 0) as total")
+						->where($params)
+						->get($this->table)
+						->row();
 	}
 }

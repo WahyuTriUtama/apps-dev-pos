@@ -51,6 +51,8 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
           <ul class="nav navbar-nav">
+            <?php $group = $this->session->userdata('group');?>
+            <?php if ($group == 'admin') { ?>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Master <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -58,27 +60,40 @@
                 <li><a href="<?= base_url();?>sites/item_category">Kategori Barang</a></li>
                 <li><a href="<?= base_url();?>sites/uom">Satuan</a></li>
                 <li class="divider"></li>
-                <li><a href="<?= base_url();?>sites/vendor">Vendor</a></li>
+                <li><a href="<?= base_url();?>sites/vendor">Suplier</a></li>
                 <li><a href="<?= base_url();?>sites/customer">Pelanggan</a></li>
                 <li class="divider"></li>
                 <li><a href="<?= base_url();?>sites/user">User</a></li>
               </ul>
             </li>
+            <?php } ?>
+            <?php if ($group == 'admin' || $group == 'purchase') { ?>
             <li class=""><a href="<?= base_url();?>sites/purchase">Pembelian</a></li>
+            <?php } ?>
+            <?php if ($group == 'admin' || $group == 'sales') { ?>
             <li><a href="<?= base_url();?>sites/sales">Penjualan</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Riwayat <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
+                <?php if ($group == 'admin') { ?>
                 <li><a href="<?= base_url();?>sites/cash_drawer">Kas</a></li>
+                <?php } ?>
                 <li><a href="<?= base_url();?>sites/sales_history">Penjualan</a></li>
               </ul>
             </li>
+            <?php } ?>
+            <?php if ($group == 'admin' || $group == 'inventory') { ?>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Laporan <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="<?= base_url();?>sites/income">Penjualan</a></li>
+                <?php if ($group == 'admin') { ?>
+                <li><a href="<?= base_url();?>sites/report/purchase">Pembelian</a></li>
+                <li><a href="<?= base_url();?>sites/report/sales">Penjualan</a></li>
+                <?php } ?>
+                <li><a href="<?= base_url();?>sites/report/inventory">Inventory</a></li>
               </ul>
             </li>
+            <?php } ?>
           </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -149,7 +164,7 @@
   <footer class="main-footer">
     <div class="container">
       <div class="pull-right hidden-xs">
-        <b>Version</b> 1.0
+        <!-- <b>Version</b> 1.0 -->
       </div>
       <strong>Copyright &copy; 2019
     </div>

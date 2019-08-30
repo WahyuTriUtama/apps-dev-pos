@@ -8,7 +8,7 @@ class Purchase extends MY_Controller
 		parent::__construct();
 		
 		$this->_page = "Pembelian";
-		$this->load->model(['Purchase_model' => 'model', 'Item_model', 'Vendor_model']);
+		$this->load->model(['Purchase_model' => 'model', 'Item_model', 'Vendor_model', 'Purchase_detail_model', 'Inventory_model']);
 		$this->breadcrumbs->push("Dashboard", $this->cls_path.'/home');
 		$this->breadcrumbs->push($this->_page, $this->controller_id.'#');
 	}
@@ -43,8 +43,10 @@ class Purchase extends MY_Controller
 			redirect($this->controller_id.'/update/'.$last_id);
 		}
 
+		$detailModel = $this->Purchase_detail_model;
 		$this->show('form', [
-			'model' => $model
+			'model' => $model,
+			'detailModel' => $detailModel
 		]);
 	}
 
@@ -65,11 +67,12 @@ class Purchase extends MY_Controller
 				redirect(current_url());
 			} 
 
-			redirect($this->controller_id);
+			redirect(current_url());
 		}
-		
+		$detailModel = $this->Purchase_detail_model->find_where(['purchase_id' => $model->id]);
 		$this->show('form', [
-			'model' => $model
+			'model' => $model,
+			'detailModel' => $detailModel
 		]);
 	}
 
@@ -81,7 +84,7 @@ class Purchase extends MY_Controller
 			redirect($this->controller_id);
 			exit;
 		}
-
+		$this->Purchase_detail_model->delete_by_header($id);
 		if ($this->model->delete($id)) {
 			$this->session->set_flashdata('message', ['success', $this->lang->line('delete_success')]);
 		} else {
@@ -118,5 +121,124 @@ class Purchase extends MY_Controller
 		}
 
 		show_404();
+	}
+
+	public function add_detail($po_id = '')
+	{
+		if ($this->input->is_ajax_request()) {
+			$model = $this->findModel($po_id);
+
+			$req = $this->input->post();
+			//var_dump($req);exit;
+			$data = [
+				'purchase_id' => $po_id,
+				'item_id' => $req['item_id'],
+				'qty' => $req['qty'],
+				'price' => $req['price'],
+				'total_price' => $req['total']
+			];
+
+			if ($this->Purchase_detail_model->save($data)) {
+				$total = $model->total_amount + (int) $data['total_price'];
+				$this->model->save(['total_amount' => $total], $po_id);
+				echo json_encode(['status' => true, 'eror' => '']);
+				exit;
+			}
+
+			echo json_encode(['status' => false, 'eror' => 'Gagal menyimpan.']);
+		}
+	}
+
+	public function item($po_id='')
+	{
+		if ($this->input->is_ajax_request()) {
+			$id = $this->input->post('id');
+			//cek
+			$detailModel = $this->Purchase_detail_model->find_where(['purchase_id' => $po_id, 'item_id' => $id]);
+			if ($detailModel->num_rows() > 0) {
+				echo json_encode(['status' => false, 'data' => [], 'eror' => 'Item sudah ada dalam list pembelian ini.']);
+				exit;
+			}
+
+			if ($model = $this->Item_model->find_where(['id' => $id])) {
+				$data = [
+					'status' => true,
+					'data' => $model->row(),
+					'eror' => ''
+				];
+				echo json_encode($data);
+				exit;
+			}
+			echo json_encode(['status' => false, 'data' => [], 'eror' => 'Item tidak terdaftar']);
+		}
+	}
+
+	public function item_delete($id='')
+	{
+		$modelDetail = $this->findModelDetail($id);
+		$model = $this->findModel($modelDetail->purchase_id);
+		if ($model->status == 'posted') {
+			$this->session->set_flashdata('message', ['warning', 'Tidak bisa di delete.']);
+			redirect($this->controller_id.'/update/'.$model->id);
+			exit;
+		}
+
+		$total_price = $modelDetail->total_price;
+		if ($this->Purchase_detail_model->delete($id)) {
+			$total = $model->total_amount - $total_price;
+			$this->model->save(['total_amount' => $total], $model->id);
+			$this->session->set_flashdata('message', ['success', $this->lang->line('delete_success')]);
+		} else {
+			$this->session->set_flashdata('message', ['danger', $this->lang->line('delete_failed')]);
+		}
+
+		redirect($this->controller_id.'/update/'.$model->id);
+	}
+
+	private function findModelDetail($id='')
+	{	
+		if ($id && intval($id)) {
+			if ($model = $this->Purchase_detail_model->find_where(['id' => $id])) {
+				return $model->row();
+			}
+		}
+
+		show_404();
+	}
+
+	public function posting($po_id = '')
+	{
+		if ($this->input->is_ajax_request()) {
+			$model = $this->findModel($po_id);
+			$detailModel = $this->Purchase_detail_model->find_where(['purchase_id' => $po_id]);
+			if ($detailModel->num_rows() == 0) {
+				echo json_encode(['status' => false, 'data' => [], 'eror' => 'Tidak ada item dalam dokumen ini.']);
+				exit;
+			}
+
+			$data = array();
+			foreach ($detailModel->result() as $row) {
+				$data[] = [
+					'entry_type' => 'Purchase',
+					'entry_date' => date('Y-m-d'),
+					'item_id'	=> $row->item_id,
+					'unit_cost'	=> $row->price,
+					'qty'		=> $row->qty,
+					'remaining_qty'	=> $row->qty,
+					'description'	=> $row->item_name,
+					'open'			=> 1,
+					'source_doc'	=> $model->id,
+					'user_id'		=> $this->session->userdata('user_id'),
+				];
+			}
+
+			if ($this->Inventory_model->save_batch($data)) {
+				$this->model->save(['status' => 'posted'], $po_id);
+				echo json_encode(['status' => true, 'eror' => '']);
+				exit;
+			}
+
+			echo json_encode(['status' => false, 'eror' => 'Gagal menyimpan.']);
+		}
 	}
 }

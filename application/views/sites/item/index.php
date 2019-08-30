@@ -34,7 +34,12 @@
 		  			<td><?= $row->name; ?></td>
 		  			<td><?= $row->category; ?></td>
 		  			<td><?= $row->uom_code; ?></td>
-		  			<td class="text-right">0</td>
+		  			<td class="text-right">
+		  			<?php 
+
+		  				$invModel =$this->Inventory_model->count_qty(['item_id' => $row->id]);
+		  				echo ($invModel->num_rows()) ? $invModel->row()->remaining_qty : '0'; ?>
+		  			</td>
 		  			<td class="text-right"><?= format_currency($row->price); ?></td>
 		  		</tr>
 		  	<?php } ?>
